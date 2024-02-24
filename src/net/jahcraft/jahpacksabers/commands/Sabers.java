@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import net.jahcraft.jahpacksabers.util.SaberStorage;
+import net.jahcraft.jahpacksabers.util.SaberUtil;
 import net.md_5.bungee.api.ChatColor;
 
 public class Sabers implements CommandExecutor {
@@ -23,7 +23,7 @@ public class Sabers implements CommandExecutor {
 			
 		Player p = (Player) sender;
 		
-		if (!p.hasPermission("jahpack.sabers.admin")) {
+		if (!p.hasPermission("jahpack.sabers.sabers")) {
 			p.sendMessage(ChatColor.RED + "You do not have permission to do that!");
 			return true;
 		}
@@ -66,13 +66,13 @@ public class Sabers implements CommandExecutor {
 	
 	public static void createList() {
 		
-		int invSize = (SaberStorage.itemGetter.keySet().size()/9);
-		if (SaberStorage.itemGetter.keySet().size()%9 > 0) invSize += 9;
+		int invSize = (SaberUtil.itemGetter.keySet().size()/9);
+		if (SaberUtil.itemGetter.keySet().size()%9 > 0) invSize += 9;
 		if (invSize > 54) invSize = 54;
 		
 		menu = Bukkit.createInventory(null, invSize, "JahPack - Sabers");
 		
-		for (ItemStack i : SaberStorage.itemGetter.values()) {
+		for (ItemStack i : SaberUtil.itemGetter.values()) {
 			
 			menu.addItem(i);
 			

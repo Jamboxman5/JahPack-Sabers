@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,12 +12,14 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import net.jahcraft.jahpacksabers.main.Main;
+import net.jahcraft.jahpacksabers.util.SaberUtil;
 
 public class LightsaberListener implements Listener {
 	
@@ -34,17 +34,34 @@ public class LightsaberListener implements Listener {
 	
 	@EventHandler
 	public void onEnchant(PrepareItemEnchantEvent e) {
-		if (isLightsaber(e.getItem())) e.setCancelled(true);
+		if (SaberUtil.isLightsaber(e.getItem())) e.setCancelled(true);
 	}
 	
 	@EventHandler
 	public void onAnvil(PrepareAnvilEvent e) {
 		for (ItemStack i : e.getInventory().getContents()) {
-			if (isLightsaber(i)) {
+			if (SaberUtil.isLightsaber(i)) {
 				e.setResult(null);
 //				e.getInventory().setRepairCost(0);
 			}
 		}
+	}
+	
+	@EventHandler
+	public void onDrop(PlayerDropItemEvent e) {
+		if (!SaberUtil.isLightsaber(e.getItemDrop().getItemStack())) return;
+		if (!SaberUtil.isOn(e.getItemDrop().getItemStack())) return;
+		
+		int oldData = e.getItemDrop().getItemStack().getItemMeta().getCustomModelData();
+		int state = ((oldData % 10000) / 1000) * 1000;
+		
+		ItemStack saber = e.getItemDrop().getItemStack();
+		ItemMeta meta = saber.getItemMeta();
+		meta.setCustomModelData(oldData - (state-1000));
+		saber.setItemMeta(meta);
+		
+		e.getItemDrop().setItemStack(saber);
+		
 	}
 	
 	@EventHandler
@@ -55,10 +72,11 @@ public class LightsaberListener implements Listener {
 		Player damager = (Player) e.getDamager();
 		ItemStack mainHand = damager.getInventory().getItemInMainHand();
 
-		if (!isLightsaber(mainHand)) return;
-		if (isOn(mainHand)) {
+		if (!SaberUtil.isLightsaber(mainHand)) return;
+		if (SaberUtil.isFullyOn(mainHand)) {
 			e.getEntity().setFireTicks(10);
-			e.setDamage(e.getDamage());
+			if (e.getEntity() instanceof Player) e.setDamage(e.getDamage());
+			else e.setDamage(80);
 		} else {
 			e.setDamage(1);
 		}
@@ -66,23 +84,20 @@ public class LightsaberListener implements Listener {
 		
 		
 	}
-	
-	private boolean isOn(ItemStack mainHand) {
-		return ((mainHand.getItemMeta().getCustomModelData() % 100) >= 70);
-	}
 
 	@EventHandler
 	public void onRightClick(PlayerInteractEvent e) {
 		
-		if (e.getAction() != Action.RIGHT_CLICK_AIR) return;
+		if (e.getAction() != Action.RIGHT_CLICK_AIR &&
+			e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 		if (e.getPlayer().getInventory().getItemInMainHand() == null) return;
 		
 		ItemStack mainHand = e.getPlayer().getInventory().getItemInMainHand();
 		
-		if (!isLightsaber(mainHand)) return;
+		if (!SaberUtil.isLightsaber(mainHand)) return;
 		if (!isReady(mainHand)) return;
 							
-		toggleLightsaber(mainHand, e.getPlayer());
+		if (e.getPlayer().isSneaking()) toggleLightsaber(mainHand, e.getPlayer());
 				
 	}
 
@@ -104,7 +119,11 @@ public class LightsaberListener implements Listener {
 					new BukkitRunnable() {
 						@Override
 						public void run() {
-							p.getWorld().playSound(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1, 50);	
+							if (meta.getCustomModelData()%1000 == 1) {
+								p.getWorld().playSound(p.getLocation(), "jahpack.sabers.retract.sith", 1, 1);	
+							} else {
+								p.getWorld().playSound(p.getLocation(), "jahpack.sabers.retract.jedi", 1, 1);	
+							}
 						}
 					}.runTask(plugin);
 					while (((meta.getCustomModelData() % 10000) - 1000) > 1000) {
@@ -133,8 +152,11 @@ public class LightsaberListener implements Listener {
 					new BukkitRunnable() {
 						@Override
 						public void run() {
-							p.getWorld().playSound(p.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1, 50);
-						}
+							if (meta.getCustomModelData()%1000 == 1) {
+								p.getWorld().playSound(p.getLocation(), "jahpack.sabers.ignite.sith", 1, 1);	
+							} else {
+								p.getWorld().playSound(p.getLocation(), "jahpack.sabers.ignite.jedi", 1, 1);	
+							}						}
 					}.runTask(plugin);
 					while (((meta.getCustomModelData() % 10000) + 1000) < 8000) {
 						meta.setCustomModelData(meta.getCustomModelData()+1000);
@@ -163,13 +185,6 @@ public class LightsaberListener implements Listener {
 		return true;
 	}
 
-	private boolean isLightsaber(ItemStack itemInMainHand) {
-		if (itemInMainHand == null) return false;
-		if (itemInMainHand.getType() != Material.NETHERITE_SWORD) return false;
-		if (!itemInMainHand.hasItemMeta()) return false;
-		if (!itemInMainHand.getItemMeta().hasCustomModelData()) return false;
-		if (itemInMainHand.getItemMeta().getCustomModelData() <= 10000) return false;
-		return true;
-	}
+	
 
 }

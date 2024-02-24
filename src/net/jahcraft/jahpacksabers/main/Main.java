@@ -6,6 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import net.jahcraft.jahpacksabers.commands.BladeColor;
 import net.jahcraft.jahpacksabers.commands.Sabers;
+import net.jahcraft.jahpacksabers.listeners.BladeColorListener;
 import net.jahcraft.jahpacksabers.listeners.LightsaberListener;
 import net.jahcraft.jahpacksabers.listeners.SaberListListener;
 
@@ -23,6 +24,7 @@ public class Main extends JavaPlugin {
 		getCommand("sabers").setExecutor((CommandExecutor) new Sabers());
 		getServer().getPluginManager().registerEvents(new LightsaberListener(this), this);
 		getServer().getPluginManager().registerEvents(new SaberListListener(), this);
+		getServer().getPluginManager().registerEvents(new BladeColorListener(), this);
 		
 		Bukkit.getLogger().info("JahPack - Sabers || Loaded and Enabled!");
 
