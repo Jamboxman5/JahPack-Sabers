@@ -20,6 +20,7 @@ public class SaberUtil {
 		items.put("darksaber", new Lightsaber(3, 6, false, "The Darksaber", true));
 		items.put("anakinsaber", new Lightsaber(4, 3, false, "Anakin Skywalker's Lightsaber", true));
 		items.put("lukesaber", new Lightsaber(5, 4, false, "Luke Skywalker's Lightsaber", true));
+		items.put("macesaber", new Lightsaber(6, 5, false, "Mace Windu's Lightsaber", true));
 		
 		return items;
 	}

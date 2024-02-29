@@ -65,6 +65,19 @@ public class LightsaberListener implements Listener {
 	}
 	
 	@EventHandler
+	public void onSwing(PlayerInteractEvent e) {
+		if (e.getPlayer() == null) return;
+		if (e.getPlayer().getInventory().getItemInMainHand() == null) return;
+		if (!SaberUtil.isLightsaber(e.getPlayer().getInventory().getItemInMainHand())) return;
+		if (!SaberUtil.isFullyOn(e.getPlayer().getInventory().getItemInMainHand())) return;
+		if (e.getAction() != Action.LEFT_CLICK_AIR && e.getAction() != Action.LEFT_CLICK_BLOCK) return;
+		Player p = e.getPlayer();
+		p.getWorld().playSound(p.getLocation(), "jahpack.sabers.swing", 1, 1);	
+
+		
+	}
+	
+	@EventHandler
 	public void onAttack(EntityDamageByEntityEvent e) {
 		
 		if (!(e.getDamager() instanceof Player)) return;
@@ -73,6 +86,8 @@ public class LightsaberListener implements Listener {
 		ItemStack mainHand = damager.getInventory().getItemInMainHand();
 
 		if (!SaberUtil.isLightsaber(mainHand)) return;
+		damager.getWorld().playSound(e.getEntity().getLocation(), "jahpack.sabers.hit", 1, 1);	
+
 		if (SaberUtil.isFullyOn(mainHand)) {
 			e.getEntity().setFireTicks(10);
 			if (e.getEntity() instanceof Player) e.setDamage(e.getDamage());
