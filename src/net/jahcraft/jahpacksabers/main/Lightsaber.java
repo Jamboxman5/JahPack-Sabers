@@ -8,6 +8,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import net.jahcraft.jahpacksabers.util.Colors;
 import net.md_5.bungee.api.ChatColor;
 
 public class Lightsaber extends ItemStack {
@@ -26,7 +27,7 @@ public class Lightsaber extends ItemStack {
 		ItemMeta meta = getItemMeta();
 		meta.setCustomModelData(modelData);
 		meta.setUnbreakable(true);
-		meta.setDisplayName(ChatColor.of("#FFD700") + name);
+		meta.setDisplayName(Colors.GOLD + name);
 		meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 		
 		if (addLore) {
@@ -35,11 +36,12 @@ public class Lightsaber extends ItemStack {
 //			lore.add(ChatColor.of("#49B3FF") + "" + ChatColor.BOLD + "" + ChatColor.STRIKETHROUGH + "=-=-=-=-=-=-=");
 //			lore.add(ChatColor.of("#FFD700") + "" + ChatColor.BOLD + "Offical Jah Donor Item!");
 //			lore.add(ChatColor.of("#49B3FF") + "" + ChatColor.BOLD + "" + ChatColor.STRIKETHROUGH + "=-=-=-=-=-=-=");
+			lore.add(Colors.DARKBLUE + "" + ChatColor.BOLD + "" + ChatColor.STRIKETHROUGH + "=-=-=-=-=-=-=");
 			lore.add("");
-			lore.add(ChatColor.of("#779AD8") + "An elegant weapon from a");
-			lore.add(ChatColor.of("#779AD8") + "more civilized age.");
+			lore.add(Colors.PALEBLUE + "An elegant weapon from a");
+			lore.add(Colors.PALEBLUE + "more civilized age.");
 			lore.add("");
-			lore.add(ChatColor.of("#49B3FF") + "" + ChatColor.BOLD + "" + ChatColor.STRIKETHROUGH + "=-=-=-=-=-=-=");
+			lore.add(Colors.DARKBLUE + "" + ChatColor.BOLD + "" + ChatColor.STRIKETHROUGH + "=-=-=-=-=-=-=");
 			lore.add("");
 			meta.setLore(lore);
 		}

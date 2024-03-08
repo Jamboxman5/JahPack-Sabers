@@ -24,6 +24,7 @@ import net.jahcraft.jahpacksabers.util.SaberUtil;
 public class LightsaberListener implements Listener {
 	
 	public static HashMap<ItemStack, Long> cooldowns = new HashMap<>();
+	public static HashMap<Player, Long> swingCooldowns = new HashMap<>();
 	public static List<ItemStack> toggling = new ArrayList<>();
 	
 	private Main plugin;
@@ -73,6 +74,7 @@ public class LightsaberListener implements Listener {
 		if (e.getAction() != Action.LEFT_CLICK_AIR && e.getAction() != Action.LEFT_CLICK_BLOCK) return;
 		Player p = e.getPlayer();
 		p.getWorld().playSound(p.getLocation(), "jahpack.sabers.swing", 1, 1);	
+		swingCooldowns.put(p, System.currentTimeMillis());
 
 		
 	}
@@ -91,7 +93,13 @@ public class LightsaberListener implements Listener {
 		if (SaberUtil.isFullyOn(mainHand)) {
 			e.getEntity().setFireTicks(10);
 			if (e.getEntity() instanceof Player) e.setDamage(e.getDamage());
-			else e.setDamage(80);
+			else {
+				if (swingCooldowns.containsKey(damager)) {
+					if (System.currentTimeMillis() - swingCooldowns.get(damager) < 800) return;
+				}
+				swingCooldowns.put(damager, System.currentTimeMillis());
+				e.setDamage(40);
+			}
 		} else {
 			e.setDamage(1);
 		}
